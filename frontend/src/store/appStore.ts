@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
 import type { CompressedImage, CompressionSettings } from '@/types';
 import { defaultSettings } from '@/types';
 
@@ -18,55 +17,47 @@ interface AppState {
   setView: (view: 'upload' | 'results') => void;
 }
 
-export const useAppStore = create<AppState>()(
-  immer((set) => ({
-    images: [],
-    settings: { ...defaultSettings },
-    isBatchMode: false,
-    view: 'upload',
+export const useAppStore = create<AppState>()((set) => ({
+  images: [],
+  settings: { ...defaultSettings },
+  isBatchMode: false,
+  view: 'upload',
 
-    addImages: (newImages) =>
-      set((state) => {
-        state.images.push(...newImages);
-        if (state.images.length > 0) state.view = 'results';
-      }),
+  addImages: (newImages) =>
+    set((state) => ({
+      images: [...state.images, ...newImages],
+      view: 'results',
+    })),
 
-    updateImage: (id, patch) =>
-      set((state) => {
-        const idx = state.images.findIndex((img: CompressedImage) => img.id === id);
-        if (idx !== -1) Object.assign(state.images[idx], patch);
-      }),
+  updateImage: (id, patch) =>
+    set((state) => ({
+      images: state.images.map((img: CompressedImage) =>
+        img.id === id ? { ...img, ...patch } : img
+      ),
+    })),
 
-    removeImage: (id) =>
-      set((state) => {
-        const idx = state.images.findIndex((img: CompressedImage) => img.id === id);
-        if (idx !== -1) {
-          const img: CompressedImage = state.images[idx];
-          if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
-          if (img.compressedUrl) URL.revokeObjectURL(img.compressedUrl);
-          state.images.splice(idx, 1);
-        }
-        if (state.images.length === 0) state.view = 'upload';
-      }),
+  removeImage: (id) =>
+    set((state) => {
+      const img = state.images.find((i: CompressedImage) => i.id === id);
+      if (img) {
+        if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
+        if (img.compressedUrl) URL.revokeObjectURL(img.compressedUrl);
+      }
+      const images = state.images.filter((i: CompressedImage) => i.id !== id);
+      return { images, view: images.length === 0 ? 'upload' : state.view };
+    }),
 
-    clearAll: () =>
-      set((state) => {
-        state.images.forEach((img: CompressedImage) => {
-          if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
-          if (img.compressedUrl) URL.revokeObjectURL(img.compressedUrl);
-        });
-        state.images = [];
-        state.view = 'upload';
-      }),
+  clearAll: () =>
+    set((state) => {
+      state.images.forEach((img: CompressedImage) => {
+        if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
+        if (img.compressedUrl) URL.revokeObjectURL(img.compressedUrl);
+      });
+      return { images: [], view: 'upload' };
+    }),
 
-    setSettings: (patch) =>
-      set((state) => {
-        Object.assign(state.settings, patch);
-      }),
+  setSettings: (patch) =>
+    set((state) => ({ settings: { ...state.settings, ...patch } })),
 
-    setView: (view) =>
-      set((state) => {
-        state.view = view;
-      }),
-  }))
-);
+  setView: (view) => set({ view }),
+}));
