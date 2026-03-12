@@ -1,0 +1,20 @@
+# Go
+backend/bin/
+backend/vendor/
+*.exe
+*.test
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+
+# OS
+.DS_Store
+Thumbs.db
