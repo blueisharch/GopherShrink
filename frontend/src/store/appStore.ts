@@ -33,15 +33,15 @@ export const useAppStore = create<AppState>()(
 
     updateImage: (id, patch) =>
       set((state) => {
-        const idx = state.images.findIndex((img) => img.id === id);
+        const idx = state.images.findIndex((img: CompressedImage) => img.id === id);
         if (idx !== -1) Object.assign(state.images[idx], patch);
       }),
 
     removeImage: (id) =>
       set((state) => {
-        const idx = state.images.findIndex((img) => img.id === id);
+        const idx = state.images.findIndex((img: CompressedImage) => img.id === id);
         if (idx !== -1) {
-          const img = state.images[idx];
+          const img: CompressedImage = state.images[idx];
           if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
           if (img.compressedUrl) URL.revokeObjectURL(img.compressedUrl);
           state.images.splice(idx, 1);
@@ -51,7 +51,7 @@ export const useAppStore = create<AppState>()(
 
     clearAll: () =>
       set((state) => {
-        state.images.forEach((img) => {
+        state.images.forEach((img: CompressedImage) => {
           if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
           if (img.compressedUrl) URL.revokeObjectURL(img.compressedUrl);
         });
