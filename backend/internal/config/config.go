@@ -48,7 +48,7 @@ func Load() *Config {
 		ReadTimeout:  60 * time.Second,
 		WriteTimeout: 120 * time.Second,
 		IdleTimeout:  180 * time.Second,
-		AllowOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
+		AllowOrigins: []string{"http://localhost:5173", "http://localhost:3000"."https://gophershrink.netlify.app"},
 	}
 }
 
